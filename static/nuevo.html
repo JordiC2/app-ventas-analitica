@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Añadir venta · Electro Ponent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080D1A;--card:rgba(255,255,255,.032);--line:rgba(255,255,255,.075);
+  --txt:#E8EDF5;--mut:#8794AC;--mut2:#5B677E;--cy:#00AEEF;--vi:#8B6FE8;
+  --ok:#3DD68C;--no:#FF6B6B;--am:#FFB454}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;
+  -webkit-font-smoothing:antialiased;background-attachment:fixed;
+  background-image:radial-gradient(1200px 600px at 15% -5%,rgba(0,174,239,.09),transparent 55%),
+                   radial-gradient(900px 500px at 90% 0%,rgba(139,111,232,.07),transparent 50%)}
+.wrap{max-width:1000px;margin:0 auto;padding:32px 26px 70px}
+header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:22px;
+  border-bottom:1px solid var(--line);margin-bottom:26px;flex-wrap:wrap;gap:16px}
+h1{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
+h1 span{color:var(--cy)}
+.sub{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mut2);margin-top:5px}
+a{color:var(--cy);text-decoration:none}
+a:hover{text-decoration:underline}
+.volver{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cy);background:rgba(0,174,239,.09);border:1px solid rgba(0,174,239,.35);
+  border-radius:7px;padding:8px 13px;display:inline-block}
+.volver:hover{background:rgba(0,174,239,.18);text-decoration:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:20px 22px;
+  backdrop-filter:blur(14px);margin-bottom:16px}
+.card h2{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cy);font-weight:700;margin-bottom:3px}
+.card .hint{font-size:11.5px;color:var(--mut2);margin-bottom:15px}
+/* ── Las reglas que descartan. Aquí, ANTES de escribir, no después. ────── */
+.reglas{border-color:rgba(255,180,84,.28);background:rgba(255,180,84,.045)}
+.reglas h2{color:var(--am)}
+.reglas ul{list-style:none;font-size:12.5px;line-height:1.75}
+.reglas li{padding-left:19px;position:relative;color:var(--mut)}
+.reglas li::before{content:'▸';position:absolute;left:2px;color:var(--am)}
+.reglas b{color:var(--txt)}
+.reglas .pie{margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,180,84,.18);
+  font-size:12px;color:var(--mut2);line-height:1.6}
+/* ── El formulario embebido ────────────────────────────────────────────── */
+.marco{position:relative;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:#fff;min-height:640px}
+iframe{width:100%;height:640px;border:0;display:block}
+.escape{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  font-size:12px;color:var(--mut2);margin-bottom:11px}
+/* ── Cerrar el ciclo: guardar -> actualizar -> verlo ───────────────────── */
+.cierre{border-color:rgba(0,174,239,.3);background:rgba(0,174,239,.05)}
+.btn{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cy);background:rgba(0,174,239,.09);border:1px solid rgba(0,174,239,.35);
+  border-radius:7px;padding:10px 15px;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover:not(:disabled){background:rgba(0,174,239,.18);border-color:rgba(0,174,239,.65)}
+.btn:disabled{opacity:.45;cursor:progress}
+.fila{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.msg{font-family:'Space Mono',monospace;font-size:11px;color:var(--mut)}
+.msg.ok{color:var(--ok)} .msg.nuevo{color:var(--cy)} .msg.mal{color:var(--no)}
+footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:'Space Mono',monospace;font-size:10px;color:var(--mut2);letter-spacing:.07em}
+</style></head><body><div class="wrap">
+<header>
+  <div><h1>Añadir <span>venta</span></h1>
+    <div class="sub">El pedido se escribe en la hoja de Drive · Electro Ponent</div></div>
+  <a class="volver" href="/">&lsaquo; Volver al cuadro de mando</a>
+</header>
+
+<div class="card reglas"><h2>Antes de escribir · lo que la puerta descarta</h2>
+  <div class="hint">Tres reglas. Si una falla, el pedido no llega al dashboard.</div>
+  <ul>
+    <li><b>El importe tiene que ser cantidad × precio.</b> Si no cuadra, se descarta —
+      no se corrige: no sabemos cuál de los tres campos miente.</li>
+    <li><b>La fecha no puede ser futura.</b> Un pedido de mañana no existe.</li>
+    <li><b>La fecha no puede estar vacía.</b> Sin fecha no se puede situar el pedido.</li>
+  </ul>
+  <div class="pie">Una cantidad <b style="color:var(--txt)">negativa</b> no es un error: es una
+    devolución, y resta de la facturación. Si el pedido no aparece después de guardarlo,
+    <b style="color:var(--txt)">diagnostico.bat</b> te dice cuál de las tres reglas ha fallado.</div>
+</div>
+
+<div class="card"><h2>Formulario de alta</h2>
+  <div class="escape">
+    <span>Se escribe directamente en la hoja de Google Drive que lee la app.</span>
+    <a id="ext" href="#" target="_blank" rel="noopener">¿No se ve el formulario? Ábrelo en una pestaña &rsaquo;</a>
+  </div>
+  <div class="marco"><iframe id="form" title="Alta de venta" referrerpolicy="no-referrer"></iframe></div>
+</div>
+
+<div class="card cierre"><h2>Ya lo he guardado</h2>
+  <div class="hint">La app no sondea Drive sola: hay que decirle que vuelva a mirar.</div>
+  <div class="fila">
+    <button id="btn" class="btn">Actualizar y ver el pedido</button>
+    <span id="msg" class="msg"></span>
+  </div>
+</div>
+
+<footer>ELECTRO PONENT SL · ALTA DE VENTAS</footer>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+
+// La URL del formulario NO va escrita a fuego aqui: la sirve la API, que la lee
+// de VENTAS_FORM_URL. Cambiar de formulario no toca el HTML.
+async function init(){
+  let url = null;
+  try{
+    const e = await fetch('/api/estado').then(r=>r.json());
+    url = e.form_url;
+  }catch(_){}
+
+  if(!url){
+    $('form').outerHTML = '<div style="background:var(--bg);color:var(--no);padding:26px;'
+      + 'font-family:DM Sans,sans-serif;font-size:13px">No hay ningun formulario configurado '
+      + '(VENTAS_FORM_URL). Revisa docker-compose.yml.</div>';
+    return;
+  }
+  $('form').src = url;
+  $('ext').href = url;
+}
+
+// Guardar en Drive y no actualizar es quedarse a medias: el pedido esta en la
+// hoja pero no en la pantalla. Este boton cierra el ciclo y te lleva a verlo.
+$('btn').addEventListener('click', async () => {
+  const btn = $('btn'), msg = $('msg');
+  btn.disabled = true;
+  msg.className = 'msg'; msg.textContent = 'Mirando Drive…';
+  try{
+    const r = await fetch('/api/actualizar', {method:'POST'});
+    const inf = await r.json();
+    if(!r.ok) throw new Error(inf.detail || r.status);
+
+    if(inf.cambio){
+      msg.className = 'msg nuevo';
+      msg.textContent = inf.mensaje + '  ·  llevándote al dashboard…';
+      setTimeout(()=>{ window.location.href = '/'; }, 1600);
+    } else {
+      msg.className = 'msg ok';
+      msg.textContent = 'Sin cambios en Drive. ¿Le diste a guardar en el formulario?';
+      btn.disabled = false;
+    }
+  }catch(e){
+    msg.className = 'msg mal';
+    msg.textContent = 'No se ha podido actualizar: ' + e.message;
+    btn.disabled = false;
+  }
+});
+
+init();
+</script></body></html>

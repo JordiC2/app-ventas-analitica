@@ -1,0 +1,20 @@
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Python y Git
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.git/
+.venv/
+venv/
+
+# Datos regenerados por la ingesta
+data/ventas_limpio.parquet
+data/calidad.json
+data/manifiesto.json
+data/cache/
+
+# El directorio data/referencia/ sí viaja: es el fixture de regresión.

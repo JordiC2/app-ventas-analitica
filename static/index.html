@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Electro Ponent · Cuadro de mando comercial</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#080D1A;--card:rgba(255,255,255,.032);--line:rgba(255,255,255,.075);
+  --line2:rgba(255,255,255,.045);--txt:#E8EDF5;--mut:#8794AC;--mut2:#5B677E;
+  --cy:#00AEEF;--vi:#8B6FE8;--ok:#3DD68C;--no:#FF6B6B;--am:#FFB454}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;
+  -webkit-font-smoothing:antialiased;background-attachment:fixed;
+  background-image:radial-gradient(1200px 600px at 15% -5%,rgba(0,174,239,.09),transparent 55%),
+                   radial-gradient(900px 500px at 90% 0%,rgba(139,111,232,.07),transparent 50%)}
+.wrap{max-width:1340px;margin:0 auto;padding:32px 26px 70px}
+header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:22px;
+  border-bottom:1px solid var(--line);margin-bottom:26px;flex-wrap:wrap;gap:16px}
+h1{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
+h1 span{color:var(--cy)}
+.sub{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mut2);margin-top:5px}
+.stamp{text-align:right;font-family:'Space Mono',monospace;font-size:10px;color:var(--mut2);
+  letter-spacing:.08em;line-height:1.7}
+.stamp b{color:var(--cy)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:26px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:18px 19px;
+  backdrop-filter:blur(14px);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,174,239,.55),transparent)}
+.kpi .lab{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--mut2)}
+.kpi .val{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:700;margin-top:9px;
+  letter-spacing:-.02em;line-height:1}
+.kpi .foot{font-size:11.5px;color:var(--mut);margin-top:7px}
+.up{color:var(--ok)}.down{color:var(--no)}
+.grid{display:grid;gap:16px;margin-bottom:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1.35fr 1fr 1fr}
+@media(max-width:1000px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:20px 22px;
+  backdrop-filter:blur(14px)}
+.card h2{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cy);font-weight:700;margin-bottom:3px}
+.card .hint{font-size:11.5px;color:var(--mut2);margin-bottom:15px}
+.cv{position:relative;height:250px}.cv.tall{height:305px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mut2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+th.r,td.r{text-align:right}
+td{padding:8px;border-bottom:1px solid var(--line2)}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(255,255,255,.022)}
+td .bar{height:3px;background:linear-gradient(90deg,var(--cy),var(--vi));border-radius:2px;margin-top:5px}
+.num{font-family:'Space Mono',monospace;font-size:12.5px}
+.q{border-color:rgba(255,180,84,.28);background:rgba(255,180,84,.045)}
+.q h2{color:var(--am)}
+.q .head{display:flex;gap:34px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:16px;
+  border-bottom:1px solid rgba(255,180,84,.18)}
+.q .head .l{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--mut2)}
+.q .head .v{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:700;margin-top:5px}
+.q .warn{color:var(--am)}
+.q table td{border-bottom-color:rgba(255,180,84,.12)}
+.q .accion{color:var(--mut);font-size:12px}
+.q .cierre{margin-top:16px;padding:13px 15px;background:rgba(255,107,107,.07);
+  border-left:2px solid var(--no);border-radius:0 7px 7px 0;font-size:12.5px;line-height:1.65}
+.q .cierre b{color:var(--no)}
+footer{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:'Space Mono',monospace;font-size:10px;color:var(--mut2);letter-spacing:.07em;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.acciones{margin-top:11px;display:flex;align-items:center;justify-content:flex-end;gap:9px}
+.btn{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cy);background:rgba(0,174,239,.09);border:1px solid rgba(0,174,239,.35);
+  border-radius:7px;padding:8px 13px;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover:not(:disabled){background:rgba(0,174,239,.18);border-color:rgba(0,174,239,.65)}
+.btn:disabled{opacity:.45;cursor:progress}
+a.btn{text-decoration:none;display:inline-block}
+.btn.alta{color:var(--ok);background:rgba(61,214,140,.09);border-color:rgba(61,214,140,.35)}
+.btn.alta:hover{background:rgba(61,214,140,.18);border-color:rgba(61,214,140,.65)}
+.msg{font-family:'Space Mono',monospace;font-size:10px;color:var(--mut);letter-spacing:.04em}
+.msg.nuevo{color:var(--cy)} .msg.igual{color:var(--ok)} .msg.mal{color:var(--no)}
+.banner{display:none;border-radius:11px;padding:13px 17px;font-size:12.5px;margin-bottom:20px;
+  line-height:1.6;border:1px solid}
+.banner.on{display:block}
+.banner.aviso{background:rgba(255,180,84,.07);border-color:rgba(255,180,84,.32);color:var(--am)}
+.banner.error{background:rgba(255,107,107,.07);border-color:rgba(255,107,107,.32);color:var(--no)}
+.banner b{font-weight:700}
+.exp .barra{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.exp input[type=text]{flex:1;min-width:200px;background:rgba(255,255,255,.04);border:1px solid var(--line);
+  border-radius:7px;padding:8px 11px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:12.5px}
+.exp input[type=text]:focus{outline:none;border-color:rgba(0,174,239,.5)}
+.exp select{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;
+  padding:8px 10px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:12.5px;cursor:pointer}
+.exp .chk{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mut2);display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.exp .pie{display:flex;justify-content:space-between;align-items:center;margin-top:13px;gap:10px;flex-wrap:wrap}
+.exp .info{font-family:'Space Mono',monospace;font-size:10px;color:var(--mut2);letter-spacing:.05em}
+.exp .pag{display:flex;gap:7px}
+.exp .pag button{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--mut);
+  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:6px;padding:6px 11px;cursor:pointer}
+.exp .pag button:hover:not(:disabled){color:var(--cy);border-color:rgba(0,174,239,.45)}
+.exp .pag button:disabled{opacity:.3;cursor:default}
+.exp tr.senalada td{background:rgba(255,180,84,.05)}
+.exp .neg{color:var(--no)}
+.exp .vacio{color:var(--mut2);font-size:12.5px;padding:24px 8px;text-align:center}
+.tag{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.09em;padding:2px 6px;
+  border-radius:4px;margin-left:7px;vertical-align:middle;white-space:nowrap}
+.tag.dev{background:rgba(255,107,107,.14);color:var(--no);border:1px solid rgba(255,107,107,.3)}
+.tag.sen{background:rgba(255,180,84,.14);color:var(--am);border:1px solid rgba(255,180,84,.35)}
+</style></head><body><div class="wrap">
+<header>
+  <div><h1>Electro <span>Ponent</span></h1>
+    <div class="sub">Cuadro de mando comercial · Distribución de material eléctrico</div></div>
+  <div class="stamp">DATOS <b id="rango"></b><br>ACTUALIZADO <b id="act"></b><br>
+    FUENTE · <b id="fuente">GOOGLE DRIVE</b>
+    <div class="acciones">
+      <span id="msg" class="msg"></span>
+      <a id="alta" class="btn alta" href="/nuevo">+ Añadir venta</a>
+      <button id="btn" class="btn">Actualizar dashboard</button>
+    </div>
+  </div>
+</header>
+<div id="banner" class="banner"></div>
+<div class="kpis" id="kpis"></div>
+<div class="grid g2">
+  <div class="card"><h2>Evolución de la facturación</h2>
+    <div class="hint">Mensual. Las barras son el importe; la línea, los pedidos.</div>
+    <div class="cv tall"><canvas id="c_mes"></canvas></div></div>
+  <div class="card"><h2>Familia de producto</h2>
+    <div class="hint">Dónde está el dinero de verdad.</div>
+    <div class="cv tall"><canvas id="c_fam"></canvas></div></div>
+</div>
+<div class="grid g3">
+  <div class="card"><h2>Equipo comercial</h2>
+    <div class="hint">Facturación de todo el periodo.</div>
+    <div class="cv"><canvas id="c_com"></canvas></div></div>
+  <div class="card"><h2>Zona</h2>
+    <div class="hint">Barcelona lleva dos comerciales.</div>
+    <div class="cv"><canvas id="c_zona"></canvas></div></div>
+  <div class="card"><h2>Tipo de cliente</h2>
+    <div class="hint">El distribuidor compra volumen; el instalador, margen.</div>
+    <div class="cv"><canvas id="c_tipo"></canvas></div></div>
+</div>
+<div class="grid g2">
+  <div class="card"><h2>Los diez clientes que sostienen la empresa</h2>
+    <div class="hint">En el Excel crudo estaban repartidos entre decenas de nombres distintos.</div>
+    <table id="t_cli"></table></div>
+  <div class="card"><h2>Producto</h2>
+    <div class="hint">Por importe facturado, no por unidades.</div>
+    <table id="t_prod"></table></div>
+</div>
+<div class="card exp"><h2>Explorador de ventas</h2>
+  <div class="hint">Las últimas ventas registradas, lo más reciente arriba. Lo que hay
+    debajo de los gráficos — y el único sitio donde se ve el pedido señalado.</div>
+  <div class="barra">
+    <input type="text" id="e_q" placeholder="Buscar cliente, producto, comercial o nº de pedido…">
+    <select id="e_com"><option value="">Todos los comerciales</option></select>
+    <select id="e_marca">
+      <option value="">Todas las ventas</option>
+      <option value="senalados">Solo señaladas</option>
+      <option value="devoluciones">Solo devoluciones</option>
+      <option value="sin_senalados">Ocultar señaladas</option>
+    </select>
+  </div>
+  <table id="e_tab"></table>
+  <div class="pie">
+    <span class="info" id="e_info"></span>
+    <div class="pag">
+      <button id="e_prev">&lsaquo; Anteriores</button>
+      <button id="e_next">Siguientes &rsaquo;</button>
+    </div>
+  </div>
+</div>
+<div class="card q"><h2>La puerta de calidad</h2>
+  <div class="hint">Qué llevaba dentro el Excel, y qué se ha hecho con cada cosa.</div>
+  <div class="head" id="q_head"></div><table id="q_tab"></table>
+  <div class="cierre" id="q_cierre"></div></div>
+<footer><span>ELECTRO PONENT SL · CUADRO DE MANDO COMERCIAL</span><span id="f_filas"></span></footer>
+</div>
+<script>
+// Los datos YA NO van dentro del HTML. Se piden a la API.
+// Antes aqui habia un objeto con el payload embebido y congelado. Ahora el
+// dashboard consume la API con fetch(), y el boton Actualizar vuelve a mirar
+// Google Drive sin recargar la pagina. El resto del HTML es identico.
+
+const CY='#00AEEF', VI='#8B6FE8', LINE='rgba(255,255,255,.055)';
+const $ = id => document.getElementById(id);
+let D = null;
+let CHARTS = [];
+
+Chart.defaults.color='#8794AC';
+Chart.defaults.font.family="'DM Sans', system-ui, sans-serif";
+Chart.defaults.font.size=11;
+Chart.defaults.plugins.legend.display=false;
+Chart.defaults.plugins.tooltip.backgroundColor='rgba(8,13,26,.96)';
+Chart.defaults.plugins.tooltip.borderColor='rgba(255,255,255,.12)';
+Chart.defaults.plugins.tooltip.borderWidth=1;
+Chart.defaults.plugins.tooltip.padding=11;
+Chart.defaults.plugins.tooltip.titleFont={family:"'Space Mono', monospace",size:10};
+Chart.defaults.plugins.tooltip.bodyFont={family:"'DM Sans', sans-serif",size:12.5};
+
+const eur=n=>new Intl.NumberFormat('es-ES',{maximumFractionDigits:0}).format(n)+' €';
+const num=n=>new Intl.NumberFormat('es-ES').format(n);
+const eur2=n=>new Intl.NumberFormat('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+' €';
+const kk=n=>n>=1e6?(n/1e6).toFixed(1).replace('.',',')+' M€'
+          :n>=1e3?Math.round(n/1e3)+' k€':Math.round(n)+' €';
+const fecha=s=>s?s.split('T')[0].split('-').reverse().join('/'):'—';
+const hora=s=>s&&s.includes('T')?s.split('T')[1].slice(0,5):'';
+
+const jget = async u => {
+  const r = await fetch(u);
+  if(!r.ok) throw new Error(u+' → '+r.status);
+  return r.json();
+};
+
+async function cargar(){
+  const [p, cal, est] = await Promise.all([
+    jget('/api/payload'), jget('/api/calidad'), jget('/api/estado').catch(()=>({}))
+  ]);
+  D = p; D.calidad = cal; D.estado = est;
+}
+
+// El aviso de origen. Un dato viejo sin avisar es peor que no arrancar.
+function pintarBanner(){
+  const b = $('banner'), e = D.estado || {};
+  const ORIGEN = {drive:'GOOGLE DRIVE', cache:'CACHÉ LOCAL', referencia:'EXCEL DE REFERENCIA'};
+  $('fuente').textContent = ORIGEN[e.origen] || 'GOOGLE DRIVE';
+  $('fuente').style.color = (e.origen === 'drive' || !e.origen) ? 'var(--cy)' : 'var(--am)';
+
+  b.className = 'banner';
+  if(e.origen === 'cache'){
+    b.className = 'banner aviso on';
+    b.innerHTML = '<b>Drive no responde.</b> Estás viendo el último dato descargado ('
+      + fecha(e.dato_de) + ' ' + hora(e.dato_de)
+      + '). Puede haber pedidos más recientes sin reflejar.';
+  } else if(e.origen === 'referencia'){
+    b.className = 'banner aviso on';
+    b.innerHTML = '<b>Drive no responde y no hay ninguna descarga previa.</b> '
+      + 'Estás viendo el Excel de referencia del notebook: son datos de ejemplo '
+      + 'congelados, <b>no los pedidos reales</b>.';
+  }
+}
+
+function pintar(){
+  CHARTS.forEach(c => c.destroy());   // sin esto, Chart.js apila lienzos y peta
+  CHARTS = [];
+
+  pintarBanner();
+
+  const K=D.kpi;
+  $('kpis').innerHTML=[
+   ['Facturación · 12 meses',kk(K.facturacion), K.var_pct==null?'':
+    `<span class="${K.var_pct>=0?'up':'down'}">${K.var_pct>=0?'▲':'▼'} ${Math.abs(K.var_pct)} %</span> frente a los 12 anteriores`],
+   ['Pedidos',num(K.pedidos),'en los últimos 12 meses'],
+   ['Ticket medio',eur(K.ticket),'devoluciones excluidas'],
+   ['Clientes activos',K.clientes,'con al menos un pedido'],
+   ['Devoluciones',kk(K.devoluciones),
+    `<span class="${K.dev_pct>3?'down':''}">${String(K.dev_pct).replace('.',',')} %</span> de la facturación`],
+  ].map(([l,v,f])=>`<div class="kpi"><div class="lab">${l}</div><div class="val">${v}</div>
+    <div class="foot">${f}</div></div>`).join('');
+
+  $('rango').textContent=
+    D.rango[0].split('-').reverse().join('/')+' — '+D.rango[1].split('-').reverse().join('/');
+  $('act').textContent=fecha(D.estado && D.estado.dato_de ? D.estado.dato_de : D.actualizado);
+  $('f_filas').textContent=
+    `${num(D.calidad.limpias)} PEDIDOS ANALIZADOS · `+
+    `${D.calidad.crudas-D.calidad.limpias} DESCARTADOS EN LA PUERTA`;
+
+  const gr=(c,a,b)=>{const g=c.createLinearGradient(0,0,0,300);g.addColorStop(0,a);g.addColorStop(1,b);return g;};
+  const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  CHARTS.push(new Chart($('c_mes'),{
+   data:{labels:D.mes.m.map(m=>{const[y,mm]=m.split('-');return MESES[+mm-1]+" '"+y.slice(2);}),
+    datasets:[
+     {type:'bar',label:'Importe',data:D.mes.imp,yAxisID:'y',borderRadius:4,maxBarThickness:26,
+      backgroundColor:c=>c.chart.ctx?gr(c.chart.ctx,'rgba(0,174,239,.85)','rgba(0,174,239,.18)'):CY},
+     {type:'line',label:'Pedidos',data:D.mes.ped,yAxisID:'y1',borderColor:VI,borderWidth:2,
+      pointRadius:0,pointHoverRadius:4,tension:.35}]},
+   options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{tooltip:{callbacks:{label:c=>c.dataset.label==='Importe'?'  '+eur(c.parsed.y):'  '+c.parsed.y+' pedidos'}}},
+    scales:{y:{position:'left',grid:{color:LINE},border:{display:false},
+               ticks:{callback:v=>kk(v),font:{family:"'Space Mono', monospace",size:10}}},
+     y1:{position:'right',grid:{display:false},border:{display:false},
+         ticks:{color:VI,font:{family:"'Space Mono', monospace",size:10}}},
+     x:{grid:{display:false},border:{color:LINE},ticks:{maxRotation:0,autoSkipPadding:14,font:{size:10}}}}}}));
+
+  const PAL=[CY,VI,'#3DD68C','#FFB454','#FF6B6B','#4ECDC4','#F79AD3','#9BB1FF'];
+  const dough=(id,d,cut='62%')=>CHARTS.push(new Chart($(id),{type:'doughnut',
+   data:{labels:d.k,datasets:[{data:d.v,backgroundColor:PAL,borderColor:'#080D1A',borderWidth:2.5}]},
+   options:{maintainAspectRatio:false,cutout:cut,
+    plugins:{legend:{display:true,position:'right',labels:{boxWidth:8,boxHeight:8,padding:9,
+      usePointStyle:true,pointStyle:'circle',font:{size:11.5}}},
+     tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);
+       return '  '+eur(c.parsed)+'  ('+(c.parsed/t*100).toFixed(1).replace('.',',')+' %)';}}}}}}));
+  dough('c_fam',D.familia); dough('c_tipo',D.tipo,'58%'); dough('c_zona',D.zona,'58%');
+
+  CHARTS.push(new Chart($('c_com'),{type:'bar',
+   data:{labels:D.comercial.k,datasets:[{data:D.comercial.v,borderRadius:4,maxBarThickness:22,
+    backgroundColor:D.comercial.k.map((k,i)=>k==='(sin informar)'?'rgba(255,180,84,.5)'
+      :(i===0?CY:'rgba(0,174,239,'+(0.75-i*0.11)+')'))}]},
+   options:{maintainAspectRatio:false,indexAxis:'y',
+    plugins:{tooltip:{callbacks:{label:c=>'  '+eur(c.parsed.x)}}},
+    scales:{x:{grid:{color:LINE},border:{display:false},
+               ticks:{callback:v=>kk(v),font:{family:"'Space Mono', monospace",size:10}}},
+     y:{grid:{display:false},border:{display:false},ticks:{font:{size:12}}}}}}));
+
+  function tabla(id,d,cab){
+   const mx=Math.max(...d.v), tot=d.v.reduce((a,b)=>a+b,0);
+   $(id).innerHTML=
+    `<thead><tr><th>${cab}</th><th class="r">Importe</th><th class="r">%</th></tr></thead><tbody>`+
+    d.k.map((k,i)=>`<tr><td>${k}<div class="bar" style="width:${d.v[i]/mx*100}%"></div></td>
+     <td class="r num">${eur(d.v[i])}</td>
+     <td class="r num" style="color:var(--mut)">${(d.v[i]/tot*100).toFixed(1).replace('.',',')}</td></tr>`).join('')+
+    '</tbody>';
+  }
+  tabla('t_cli',D.clientes,'Cliente'); tabla('t_prod',D.producto,'Producto');
+
+  // El desplegable de comerciales sale del desglose que ya tenemos: sin endpoint extra.
+  const sel = $('e_com');
+  if(sel.options.length <= 1){
+    D.comercial.k.forEach(c=>{
+      const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);
+    });
+  }
+  EXP.offset = 0;          // el dato ha cambiado: el explorador vuelve al principio
+  cargarExplorador();
+
+  const Q=D.calidad, dif=Q.fact_crudo-Q.fact_limpio;
+  $('q_head').innerHTML=`
+   <div><div class="l">Filas en el Excel</div><div class="v">${num(Q.crudas)}</div></div>
+   <div><div class="l">Filas analizadas</div><div class="v">${num(Q.limpias)}</div></div>
+   <div><div class="l">Facturación cruda</div><div class="v">${kk(Q.fact_crudo)}</div></div>
+   <div><div class="l">Facturación real</div><div class="v" style="color:var(--cy)">${kk(Q.fact_limpio)}</div></div>
+   <div><div class="l">Diferencia</div><div class="v warn">${kk(dif)}
+     <span style="font-size:.95rem;color:var(--mut)"> · ${(dif/Q.fact_crudo*100).toFixed(1).replace('.',',')} %</span></div></div>`;
+  $('q_tab').innerHTML=
+   '<thead><tr><th>Qué se encontró</th><th class="r">Filas</th><th>Qué se hizo, y por qué</th></tr></thead><tbody>'+
+   Q.incidencias.map(r=>`<tr><td>${r.regla}</td><td class="r num">${r.filas}</td>
+     <td class="accion">${r.accion}</td></tr>`).join('')+'</tbody>';
+  $('q_cierre').innerHTML=
+   `<b>${kk(dif)} de diferencia, y nadie hizo nada mal.</b> Solo sumaron la columna.<br>
+    El Excel no dio ningún error: dio un número. Y un número equivocado que parece razonable es más
+    peligroso que un fallo, porque llega al consejo de administración sin que nadie lo pare.<br><br>
+    <span style="color:var(--mut)">Ninguna fila se ha borrado en silencio. Cada descarte tiene su motivo
+    escrito ahí arriba, y el pedido señalado como anómalo <b style="color:var(--am)">sigue en los datos</b>:
+    esa decisión la toma un humano, no el pipeline.</span>`;
+}
+
+// ─── El explorador. Paginado en el servidor: 25 filas, no 10.000. ─────────
+const EXP = {offset:0, limite:25, q:'', comercial:'', marca:''};
+let expTimer = null;
+
+async function cargarExplorador(){
+  const p = new URLSearchParams({limite:EXP.limite, offset:EXP.offset});
+  if(EXP.marca) p.set('marca', EXP.marca);
+  if(EXP.q) p.set('q', EXP.q);
+  if(EXP.comercial) p.set('comercial', EXP.comercial);
+  try{
+    pintarExplorador(await jget('/api/ventas?'+p));
+  }catch(e){
+    $('e_tab').innerHTML = '<tbody><tr><td class="vacio">No se han podido cargar las ventas ('
+      + e.message + ')</td></tr></tbody>';
+  }
+}
+
+function pintarExplorador(v){
+  const t = $('e_tab');
+  if(!v.filas.length){
+    t.innerHTML = '<tbody><tr><td class="vacio">Ninguna venta coincide con el filtro.</td></tr></tbody>';
+  } else {
+    t.innerHTML =
+      '<thead><tr><th>Fecha</th><th>Pedido</th><th>Cliente</th><th>Producto</th><th>Comercial</th>'
+      + '<th class="r">Cant.</th><th class="r">Precio</th><th class="r">Importe</th></tr></thead><tbody>'
+      + v.filas.map(f=>`<tr class="${f.senalado?'senalada':''}">
+        <td class="num">${f.fecha.split('-').reverse().join('/')}</td>
+        <td class="num" style="color:var(--mut2)">${f.pedido_id}</td>
+        <td>${f.cliente}${f.devolucion?'<span class="tag dev">DEVOLUCIÓN</span>':''}${f.senalado?'<span class="tag sen">SEÑALADO</span>':''}</td>
+        <td style="color:var(--mut)">${f.producto}</td>
+        <td style="color:var(--mut)">${f.comercial}</td>
+        <td class="r num ${f.cantidad<0?'neg':''}">${num(f.cantidad)}</td>
+        <td class="r num" style="color:var(--mut2)">${f.precio.toFixed(2).replace('.',',')}</td>
+        <td class="r num ${f.importe<0?'neg':''}">${eur2(f.importe)}</td></tr>`).join('')
+      + '</tbody>';
+  }
+  const a = v.total ? v.offset+1 : 0;
+  const b = Math.min(v.offset+v.limite, v.total);
+  $('e_info').textContent = num(a)+'–'+num(b)+' de '+num(v.total)+' · '+eur(v.importe);
+  $('e_prev').disabled = v.offset <= 0;
+  $('e_next').disabled = v.offset + v.limite >= v.total;
+}
+
+function engancharExplorador(){
+  $('e_q').addEventListener('input', e=>{         // con freno, no una peticion por tecla
+    clearTimeout(expTimer);
+    const val = e.target.value;
+    expTimer = setTimeout(()=>{ EXP.q=val; EXP.offset=0; cargarExplorador(); }, 300);
+  });
+  $('e_com').addEventListener('change', e=>{ EXP.comercial=e.target.value; EXP.offset=0; cargarExplorador(); });
+  $('e_marca').addEventListener('change', e=>{ EXP.marca=e.target.value; EXP.offset=0; cargarExplorador(); });
+  $('e_prev').addEventListener('click', ()=>{ EXP.offset=Math.max(0,EXP.offset-EXP.limite); cargarExplorador(); });
+  $('e_next').addEventListener('click', ()=>{ EXP.offset+=EXP.limite; cargarExplorador(); });
+}
+
+// ─── El boton. Vuelve a mirar Drive y repinta sin recargar la pagina.
+async function actualizar(){
+  const btn = $('btn'), msg = $('msg');
+  btn.disabled = true;
+  msg.className = 'msg'; msg.textContent = 'Mirando Drive…';
+  try{
+    const r = await fetch('/api/actualizar', {method:'POST'});
+    const inf = await r.json();
+    if(!r.ok) throw new Error(inf.detail || r.status);
+
+    await cargar();
+    pintar();
+
+    if(inf.cambio){
+      const d = inf.delta;
+      msg.className = 'msg nuevo';
+      msg.textContent = d ? 'Dato nuevo · ' + (d.limpias>=0?'+':'') + num(d.limpias) + ' pedidos'
+                          : 'Dato nuevo cargado';
+    } else {
+      msg.className = 'msg igual';
+      msg.textContent = 'Sin cambios en Drive';
+    }
+  }catch(e){
+    msg.className = 'msg mal';
+    msg.textContent = 'No se ha podido actualizar';
+    const b = $('banner');
+    b.className = 'banner error on';
+    b.innerHTML = '<b>La actualización ha fallado:</b> ' + e.message
+      + '. Sigues viendo el dato anterior.';
+  }finally{
+    btn.disabled = false;
+    setTimeout(()=>{ if(msg.className!=='msg mal') msg.textContent=''; }, 6000);
+  }
+}
+
+async function init(){
+  try{
+    await cargar();
+    pintar();
+  }catch(e){
+    const b = $('banner');
+    b.className = 'banner error on';
+    b.innerHTML = '<b>No se han podido cargar los datos de la API</b> (' + e.message
+      + '). ¿Está el pipeline ejecutado y la API arrancada?';
+  }
+  $('btn').addEventListener('click', actualizar);
+  engancharExplorador();
+}
+init();
+</script></body></html>

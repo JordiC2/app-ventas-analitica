@@ -1,0 +1,26 @@
+# Configuración y secretos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Datos generados por la aplicación
+data/cache/
+data/ventas_limpio.parquet
+data/calidad.json
+data/manifiesto.json
+
+# Logs
+*.log
