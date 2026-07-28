@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      requested_by:
+        description: "Usuario o sistema que solicitó la sincronización"
+        required: false
+        default: "GitHub"
+        type: string
   schedule:
     - cron: "17 3 * * *"
       timezone: "Europe/Madrid"
@@ -38,6 +43,12 @@ jobs:
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v6
+
+      - name: Mostrar origen de la solicitud
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          REQUESTED_BY: ${{ inputs.requested_by }}
+        run: printf 'Sincronización solicitada por: %s\n' "$REQUESTED_BY"
 
       - name: Preparar Python
         uses: actions/setup-python@v6
