@@ -103,7 +103,10 @@ begin
         raise exception 'La carga clean del sync % esta vacia', p_sync_id;
     end if;
 
-    delete from public.ventas_raw;
+    -- Supabase protege los DELETE sin filtro. Estas condiciones son siempre
+    -- verdaderas para las filas válidas y mantienen la publicación transaccional.
+    delete from public.ventas_raw
+    where id is not null;
 
     insert into public.ventas_raw (
         sync_id, fila_origen, pedido_id, fecha, comercial, zona,
@@ -118,7 +121,8 @@ begin
     where sync_id = p_sync_id
     order by fila_origen;
 
-    delete from public.ventas_clean;
+    delete from public.ventas_clean
+    where pedido_id is not null;
 
     insert into public.ventas_clean (
         pedido_id, fecha, comercial, zona, cliente, tipo_cliente,
