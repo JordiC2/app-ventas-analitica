@@ -26,6 +26,8 @@ from __future__ import annotations
 import hashlib
 import io
 import os
+import sys
+import time
 import urllib.request
 
 import pandas as pd
@@ -36,7 +38,13 @@ URL = os.environ.get(
     "VENTAS_DRIVE_URL",
     f"https://docs.google.com/spreadsheets/d/{FILE_ID}/export?format=xlsx",
 )
-TIMEOUT = int(os.environ.get("VENTAS_DRIVE_TIMEOUT", "30"))
+
+# La exportación de una hoja grande puede tardar más de 30 segundos, sobre todo
+# desde un runner o un contenedor recién arrancado. El timeout y los reintentos
+# son configurables para no convertir una lentitud puntual de Google en un fallo.
+TIMEOUT = int(os.environ.get("VENTAS_DRIVE_TIMEOUT", "120"))
+REINTENTOS = int(os.environ.get("VENTAS_DRIVE_RETRIES", "3"))
+ESPERA_REINTENTO = int(os.environ.get("VENTAS_DRIVE_RETRY_WAIT", "5"))
 
 # La pestaña que escribió el notebook. Si no está, se coge la primera.
 HOJA = os.environ.get("VENTAS_DRIVE_HOJA", "Pedidos")
@@ -55,25 +63,55 @@ class DatoIlegible(RuntimeError):
     """Ha llegado algo, pero no es la hoja de pedidos que esperamos."""
 
 
-def descargar(url: str | None = None, timeout: int | None = None) -> bytes:
-    """Baja la hoja de Drive exportada a .xlsx. Devuelve los bytes."""
+def descargar(
+    url: str | None = None,
+    timeout: int | None = None,
+    reintentos: int | None = None,
+    espera: int | None = None,
+) -> bytes:
+    """Baja la hoja exportada a .xlsx con reintentos ante fallos de red."""
     url = url or URL
-    timeout = timeout or TIMEOUT
-    req = urllib.request.Request(url, headers={"User-Agent": "ElectroPonent/1.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            b = r.read()
-    except Exception as e:                      # red, DNS, 404, timeout...
-        raise DriveNoDisponible(f"Drive no responde: {e}") from e
+    timeout = TIMEOUT if timeout is None else int(timeout)
+    reintentos = REINTENTOS if reintentos is None else max(1, int(reintentos))
+    espera = ESPERA_REINTENTO if espera is None else max(0, int(espera))
 
-    # Un .xlsx es un zip: empieza por 'PK'. Si llega HTML, el enlace ha dejado
-    # de ser público (Google devuelve la pantalla de login) o el ID es otro.
-    if b[:2] != b"PK":
-        raise DriveNoDisponible(
-            "Drive no ha devuelto un .xlsx. Lo más probable: el enlace ha dejado "
-            "de ser público, o el ID del fichero ya no existe."
+    ultimo_error: Exception | None = None
+
+    for intento in range(1, reintentos + 1):
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "ElectroPonent/1.0"},
         )
-    return b
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as respuesta:
+                b = respuesta.read()
+
+            # Un .xlsx es un zip: empieza por 'PK'. Si llega HTML, el enlace ha
+            # dejado de ser público o el ID ya no existe. Reintentar no lo arregla.
+            if b[:2] != b"PK":
+                raise DriveNoDisponible(
+                    "Drive no ha devuelto un .xlsx. Lo más probable: el enlace ha "
+                    "dejado de ser público, o el ID del fichero ya no existe."
+                )
+            return b
+
+        except DriveNoDisponible:
+            raise
+        except Exception as exc:  # red, DNS, 404, timeout...
+            ultimo_error = exc
+            if intento < reintentos:
+                pausa = espera * intento
+                print(
+                    f"Drive no responde (intento {intento}/{reintentos}: {exc}). "
+                    f"Nuevo intento en {pausa} s...",
+                    file=sys.stderr,
+                )
+                time.sleep(pausa)
+
+    raise DriveNoDisponible(
+        f"Drive no responde tras {reintentos} intentos "
+        f"(timeout {timeout} s): {ultimo_error}"
+    ) from ultimo_error
 
 
 def leer(b: bytes) -> pd.DataFrame:
