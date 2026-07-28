@@ -44,7 +44,8 @@ jobs:
       - name: Mostrar origen de la solicitud
         env:
           REQUESTED_BY: ${{ inputs.requested_by }}
-        run: printf 'Sincronización solicitada por: %s\n' "$REQUESTED_BY"
+        run: |
+          printf 'Sincronización solicitada por: %s\n' "$REQUESTED_BY"
 
       - name: Preparar Python
         uses: actions/setup-python@v6
